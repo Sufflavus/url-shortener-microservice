@@ -33,15 +33,15 @@ mongo.connect('mongodb://localhost:27017/url-shortener', function (err, db) {
     });
     
     app.get('/new/:url', function (req, res) {
-        console.log(req.params.url)
+        //console.log(req.params.url)
         var urls = db.collection('urls');
-        urls.remove( { } )
-        var cursor = urls.find({ $query: {}, $orderby: { number: -1 } });
-        console.log(cursor.count())
+        var cursor = urls.find({ $query: {}, $orderby: { number: -1 } }).limit(1);
+        console.log(cursor.next().number)
         var nextNumber = cursor.hasNext() ? cursor.next().number + 1 : 1;
+        nextNumber = nextNumber || 1;
         console.log(nextNumber)
         var doc = { number: nextNumber, path: req.params.url };
-        //urls.insertOne(doc);
+        urls.insertOne(doc);
         var hostName = req.headers.host;
         res.json({ 
             "original_url": doc.path, 
