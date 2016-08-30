@@ -16,8 +16,9 @@ mongo.connect('mongodb://localhost:27017/url-shortener', function (err, db) {
     app.get('/:number', function (req, res) {
         console.log(req.params.number);
         var urls = db.collection('urls');
+        
         var urlProjection = { '_id': false };
-        urls.findOne({ number: req.params.number }, urlProjection, function (err, doc) {
+        urls.findOne({ number: req.params.number }, function (err, doc) {
             if (err) {
                 throw err;
             }
@@ -33,21 +34,30 @@ mongo.connect('mongodb://localhost:27017/url-shortener', function (err, db) {
     });
     
     app.get('/new/:url', function (req, res) {
-        console.log(req.params.url)
         var urls = db.collection('urls');
+        
         urls.find({ $query: {}, $orderby: { number: -1 } }).limit(1).toArray(function(err, items) {
             if (err) {
                 throw err;
             }
+            
             var nextNumber = items.length ? items[0].number + 1 : 1;
-            console.log(nextNumber)
+            
             var doc = { number: nextNumber, path: req.params.url };
-            urls.insertOne(doc);
-            var hostName = req.headers.host;
-            res.json({ 
-                "original_url": doc.path, 
-                "short_url": hostName + "/" + doc.number
-            });    
+            
+            urls.insertOne(doc, function(err, newDocs){
+                if (err) {
+                    throw err;
+                }
+                
+                var newItem = newDocs.ops[0];
+                var hostName = req.headers.host;
+                
+                res.json({ 
+                    "original_url": newItem.path, 
+                    "short_url": hostName + "/" + newItem.number
+                });    
+            });
         });
     });
     
