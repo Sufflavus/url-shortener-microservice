@@ -18,7 +18,22 @@ mongo.connect('mongodb://localhost:27017/url-shortener', function (err, db) {
         var urls = db.collection('urls');
         
         var urlProjection = { '_id': false };
-        urls.findOne({ number: req.params.number }, function (err, doc) {
+        
+        urls.find({ number: req.params.number }).toArray(function(err, items) {
+            if (err) {
+                throw err;
+            }
+            
+            if(items.length) {
+                res.redirect(items[0].path);
+            } else {
+                res.json({
+                    "error": "This url is not in database."
+                });
+            }
+        });
+        
+       /* urls.findOne({ number: req.params.number }, function (err, doc) {
             if (err) {
                 throw err;
             }
@@ -30,7 +45,7 @@ mongo.connect('mongodb://localhost:27017/url-shortener', function (err, db) {
                     "error": "This url is not in database."
                 });
             }
-        });
+        });*/
     });
     
     app.get('/new/:url', function (req, res) {
