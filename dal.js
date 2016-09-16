@@ -2,65 +2,67 @@
 
 module.exports = Dal;
 
-function Dal (mongo) {
+function Dal (MongoClient) {
     var dbPath = "mongodb://localhost:27017/url-shortener";
     var urlsCollectionName = "urls";
+    var db;
     
-	this.getUrl = function (number) {
-	    mongo.connect(dbPath, function (err, db) {
-            if (err) {
-                throw new Error('Database failed to connect!');
-            } else {
-                console.log('MongoDB successfully connected on port 27017.');
-            }
-	        
-	        var urls = db.collection(urlsCollectionName);
+    this.connect = function(callback, app) {
+        // Initialize connection once
+        MongoClient.connect(dbPath, function(err, database) {
+          if(err) {
+              throw err;
+          }
+          
+          db = database;
+          console.log("Listening on port 3000");
+          callback();
+        });
+    };
+    
+	this.getUrl = function (number, res) {
+	    var urls = db.collection(urlsCollectionName);
         
-            urls.findOne({ number: number }, function (err, doc) {
-                //TODO: close connection
-                
-                if (err) {
-                    throw err;
-                }
-                
-                if(doc) {
-                    return doc;
-                } else {
-                    throw "This url is not in database.";
-                }
-            });
-	    });
+        urls.findOne({ number: number }, function (err, doc) {
+            if (err) {
+                throw err;
+            }
+            
+            if(doc) {
+                res.redirect(doc.path);
+            } else {
+                res.json({
+                    "error": "This url is not in database."
+                });
+            }
+        });
 	};
 	
-	this.addUrl = function (url) {
-	    mongo.connect(dbPath, function (err, db) {
-            if (err) {
-                throw new Error('Database failed to connect!');
-            } else {
-                console.log('MongoDB successfully connected on port 27017.');
-            }
-	        
-	        var urls = db.collection(urlsCollectionName);
+	this.addUrl = function (url, hostName, res) {
+	    var urls = db.collection(urlsCollectionName);
         
-            urls.find({ $query: {}, $orderby: { number: -1 } }).limit(1).toArray(function(err, items) {
-                //TODO: close connection
-                
+        urls.find({ $query: {}, $orderby: { number: -1 } }).limit(1).toArray(function(err, items) {
+            
+            if (err) {
+                throw err;
+            }
+            
+            var nextNumber = items.length ? items[0].number + 1 : 1;
+            
+            var doc = { number: nextNumber, path: url };
+            
+            urls.insertOne(doc, function(err, newDocs){
                 if (err) {
                     throw err;
                 }
                 
-                var nextNumber = items.length ? items[0].number + 1 : 1;
+                var newItem = newDocs.ops[0];
                 
-                var doc = { number: nextNumber, path: url };
-                
-                urls.insertOne(doc, function(err, newDocs){
-                    if (err) {
-                        throw err;
-                    }
-                    
-                    return newDocs.ops[0];
-                });
+                res.json({ 
+                    "original_url": newItem.path, 
+                    "short_url": hostName + "/" + newItem.number
+                });    
             });
-	    });
+        });
 	};
 }
