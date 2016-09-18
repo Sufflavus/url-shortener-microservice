@@ -7,7 +7,7 @@ function Dal (MongoClient) {
     var urlsCollectionName = "urls";
     var db;
     
-    this.connect = function(callback, app) {
+    this.connect = function(callback) {
         // Initialize connection once
         MongoClient.connect(dbPath, function(err, database) {
           if(err) {

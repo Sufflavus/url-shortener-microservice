@@ -1,11 +1,19 @@
 var express = require('express');
+var Dal = require('./dal.js');
 
 var mongo = require('mongodb').MongoClient;
+var dal = new Dal(mongo);
 var db;
 var app = express();
 
 // Initialize connection once
-mongo.connect('mongodb://localhost:27017/url-shortener', function(err, database) {
+dal.connect(function() {
+    app.listen(8080, function () {
+        console.log('Example app listening on port 8080!');
+    });
+});
+
+/*mongo.connect('mongodb://localhost:27017/url-shortener', function(err, database) {
     if (err) {
         throw new Error('Database failed to connect!');
     } else {
@@ -18,13 +26,16 @@ mongo.connect('mongodb://localhost:27017/url-shortener', function(err, database)
     app.listen(8080, function () {
         console.log('Example app listening on port 8080!');
     });
-});
+});*/
 
 app.get('/favicon.ico', function (req, res) {
 });
 
 app.get('/:number', function (req, res) {
-    var urls = db.collection('urls');
+    var number = +req.params.number;
+    dal.getUrl(number, res);
+    
+    /*var urls = db.collection('urls');
     
     urls.findOne({ number: +req.params.number }, function (err, doc) {
         if (err) {
@@ -38,11 +49,15 @@ app.get('/:number', function (req, res) {
                 "error": "This url is not in database."
             });
         }
-    });
+    });*/
 });
 
 app.get('/new/:url', function (req, res) {
-    var urls = db.collection('urls');
+    var url = req.params.url;
+    var hostName = req.headers.host;
+    dal.addUrl(url, hostName, res);
+    
+    /*var urls = db.collection('urls');
     
     urls.find({ $query: {}, $orderby: { number: -1 } }).limit(1).toArray(function(err, items) {
         if (err) {
@@ -66,5 +81,5 @@ app.get('/new/:url', function (req, res) {
                 "short_url": hostName + "/" + newItem.number
             });    
         });
-    });
+    });*/
 });
