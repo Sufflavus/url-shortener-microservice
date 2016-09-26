@@ -53,6 +53,7 @@ app.get('/:number', function (req, res) {
 });
 
 app.get('/new/:url', function (req, res) {
+    console.log(req.params.url)
     var url = req.params.url;
     var hostName = req.headers.host;
     dal.addUrl(url, hostName, res);
@@ -82,4 +83,21 @@ app.get('/new/:url', function (req, res) {
             });    
         });
     });*/
+});
+
+app.get('/*', function (req, res) {
+    //console.log(!req.params)
+    if(!req.params.length || req.params[0].indexOf("new/") !== 0) {
+        res.json({
+            "error": "This url is not in database."
+        });
+        return;
+    }
+    
+    
+    console.log(req.params)
+    var url = req.params[0].substring(4);
+    
+    var hostName = req.headers.host;
+    dal.addUrl(url, hostName, res);
 });
