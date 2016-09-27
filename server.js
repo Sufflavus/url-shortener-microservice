@@ -1,10 +1,11 @@
 var express = require('express');
 var Dal = require('./dal.js');
-
 var mongo = require('mongodb').MongoClient;
+
 var dal = new Dal(mongo);
 var db;
 var app = express();
+var path = process.cwd();
 
 // Initialize connection once
 dal.connect(function() {
@@ -84,6 +85,11 @@ app.get('/new/:url', function (req, res) {
         });
     });*/
 });
+
+app.get('/', function (req, res) {
+  res.sendFile(path + '/public/index.html');
+});
+
 
 app.get('/*', function (req, res) {
     //console.log(!req.params)
