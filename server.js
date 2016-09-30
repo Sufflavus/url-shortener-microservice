@@ -6,9 +6,11 @@ var dal = new Dal(mongo);
 var app = express();
 var path = process.cwd();
 
+var port = process.env.PORT || 1024;
+
 dal.connect(function() {
-    app.listen(8080, function () {
-        console.log('Example app listening on port 8080!');
+    app.listen(port, function () {
+        console.log('Example app listening on port ' + port);
     });
 });
 
