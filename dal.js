@@ -3,7 +3,7 @@
 module.exports = Dal;
 
 function Dal (MongoClient) {
-    var dbPath = "mongodb://localhost:27017/url-shortener";
+    var dbPath = "mongodb://user:123456@ds013916.mlab.com:13916/urls";
     var urlsCollectionName = "urls";
     var db;
     
