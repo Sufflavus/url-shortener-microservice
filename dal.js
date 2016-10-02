@@ -3,13 +3,12 @@
 module.exports = Dal;
 
 function Dal (MongoClient) {
-    var dbPath = "mongodb://user:123456@ds013916.mlab.com:13916/urls";
     var urlsCollectionName = "urls";
     var db;
     
-    this.connect = function(callback) {
+    this.connect = function(connectionString, callback) {
         // Initialize connection once
-        MongoClient.connect(dbPath, function(err, database) {
+        MongoClient.connect(connectionString, function(err, database) {
           if(err) {
               throw err;
           }

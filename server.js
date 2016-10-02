@@ -7,8 +7,9 @@ var app = express();
 var path = process.cwd();
 
 var port = process.env.PORT || 1024;
+var connectionString = process.env.CONNECTION_STRING;
 
-dal.connect(function() {
+dal.connect(connectionString, function() {
     app.listen(port, function () {
         console.log('Example app listening on port ' + port);
     });
