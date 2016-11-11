@@ -1,4 +1,8 @@
 # url-shortener-microservice
+
+[![Heroku](https://heroku-badge.herokuapp.com/?app=tata-fcc-url-shortener&style=flat)](https://tata-fcc-url-shortener.herokuapp.com/)
+
+## Live example
 This app is runned on Heroku: [https://tata-fcc-url-shortener.herokuapp.com/](https://tata-fcc-url-shortener.herokuapp.com/)
 
 ## List of used tecnologies and libraries:
